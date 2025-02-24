@@ -11,6 +11,8 @@ pygame.display.set_caption("Jumping Dot")
 
 # Florian
 
+#Doga
+
 # Load background images for parallax
 bg_far = pygame.image.load("background_far.png")
 bg_far = pygame.transform.scale(bg_far, (WIDTH, HEIGHT))
