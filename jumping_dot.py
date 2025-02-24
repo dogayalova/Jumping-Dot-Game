@@ -20,7 +20,7 @@ bg_near = pygame.transform.scale(bg_near, (WIDTH, HEIGHT))
 bg_far_x1, bg_far_x2 = 0, WIDTH  # Two copies of the far background
 bg_near_x1, bg_near_x2 = 0, WIDTH  # Two copies of the near background
 
-bg_far_speed = 1   # Far background moves slower
+bg_far_speed = 1  # Far background moves slower
 bg_near_speed = 2  # Near background moves faster
 
 # Load images
@@ -54,7 +54,7 @@ obstacles = []
 
 for i in range(num_obstacles):
     x = WIDTH + i * 300  # Spread them out
-    y = ground_level+50
+    y = ground_level + 50
     obstacle_image = random.choice(obstacle_images)  # Choose random image
     obstacles.append([x, y, obstacle_image])
 
@@ -76,11 +76,11 @@ score = 0
 score_font = pygame.font.Font("font.TTF", 30)  # Define the font for score
 score_text = score_font.render(f"Score: {score}", True, BLACK)  # Black color for score
 
-# Display intro text for 2 seconds
+# Display intro text for 3 seconds
 screen.fill((0, 0, 0))  # Fill the screen with black (clear screen)
-screen.blit(intro_text, (WIDTH//2 - intro_text.get_width()//2, HEIGHT//2 - intro_text.get_height()//2))
+screen.blit(intro_text, (WIDTH // 2 - intro_text.get_width() // 2, HEIGHT // 2 - intro_text.get_height() // 2))
 pygame.display.flip()  # Update the screen to show the text
-pygame.time.delay(3000)  # Wait for 2 seconds (intro screen duration)
+pygame.time.delay(3000)  # Wait for 3 seconds (intro screen duration)
 
 # Game loop
 clock = pygame.time.Clock()  # Create clock object for controlling frame rate
@@ -124,17 +124,24 @@ while running:
         obstacles[i][0] -= obstacle_speed
 
         if obstacles[i][0] < -40:
-            obstacles[i][0] = WIDTH + random.randint(100, 300)
+            obstacles[i][0] = WIDTH + random.randint(150, 200)
             obstacles[i][2] = random.choice(obstacle_images)
             score += 1
 
     # Collision detection
-    dot_rect = pygame.Rect(dot_x, dot_y, 30, 30)
+    # dot_rect = pygame.Rect(dot_x, dot_y+50, 30, 30)
+
+    # for obs in obstacles:
+    #    obstacle_rect = pygame.Rect(obs[0], obs[1], obs[2].get_width(), obs[2].get_height())
+    #    if dot_rect.colliderect(obstacle_rect):
+    #        score = 0  # Reset score on collision
+    #        for i in range(num_obstacles):
+    #            obstacles[i][0] = WIDTH + i * 200
+    #            obstacles[i][2] = random.choice(obstacle_images)
 
     for obs in obstacles:
-        obstacle_rect = pygame.Rect(obs[0], obs[1], obs[2].get_width(), obs[2].get_height())
-        if dot_rect.colliderect(obstacle_rect):
-            score = 0  # Reset score on collision
+        if dot_x - 40 <= obs[0] <= dot_x + 40 and dot_y+50-30 <= obs[1] <= dot_y+50+30:
+            score = 0
             for i in range(num_obstacles):
                 obstacles[i][0] = WIDTH + i * 200
                 obstacles[i][2] = random.choice(obstacle_images)
