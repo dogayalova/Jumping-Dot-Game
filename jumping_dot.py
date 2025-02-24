@@ -9,6 +9,8 @@ WIDTH, HEIGHT = 600, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Jumping Dot")
 
+# Florian
+
 # Load background images for parallax
 bg_far = pygame.image.load("background_far.png")
 bg_far = pygame.transform.scale(bg_far, (WIDTH, HEIGHT))
