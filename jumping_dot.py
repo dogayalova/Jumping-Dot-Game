@@ -9,10 +9,6 @@ WIDTH, HEIGHT = 600, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Jumping Dot")
 
-# Florian
-
-#Doga
-
 # Load background images for parallax
 bg_far = pygame.image.load("background_far.png")
 bg_far = pygame.transform.scale(bg_far, (WIDTH, HEIGHT))
@@ -42,14 +38,15 @@ obstacle_images = [
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
 
 # Dot properties
 dot_x = 100
-dot_y = 200
+dot_y = 500
 velocity = 0
 gravity = 0.5
 jump_strength = -10
-ground_level = 400
+ground_level = 500
 jumps_left = 2  # Define jumps_left to keep track of jumps
 
 # Obstacle properties
@@ -58,9 +55,13 @@ obstacles = []
 
 for i in range(num_obstacles):
     x = WIDTH + i * 300  # Spread them out
-    y = ground_level + 50
+    y = ground_level
     obstacle_image = random.choice(obstacle_images)  # Choose random image
-    obstacles.append([x, y, obstacle_image])
+    obstacle_rect = pygame.Rect(x, y - obstacle_image.get_height(), obstacle_image.get_width(),
+                                obstacle_image.get_height())
+    obs_mask = pygame.mask.from_surface(obstacle_image)
+
+    obstacles.append([x, y, obstacle_image, obstacle_rect, obs_mask])
 
 obstacle_speed = 5
 
@@ -77,8 +78,10 @@ intro_text = custom_font.render("LEVEL 1: SWEDEN", True, WHITE)
 
 # Score setup
 score = 0
+highscore = 0
 score_font = pygame.font.Font("font.TTF", 30)  # Define the font for score
 score_text = score_font.render(f"Score: {score}", True, BLACK)  # Black color for score
+high_score_text = score_font.render(f"Highscore: {highscore}", True, BLACK)  # Black color for score
 
 # Display intro text for 3 seconds
 screen.fill((0, 0, 0))  # Fill the screen with black (clear screen)
@@ -126,29 +129,34 @@ while running:
     # Move obstacles
     for i in range(num_obstacles):
         obstacles[i][0] -= obstacle_speed
+        obstacles[i][3] = obstacles[i][3].move(-obstacle_speed, 0)
 
         if obstacles[i][0] < -40:
             obstacles[i][0] = WIDTH + random.randint(150, 200)
             obstacles[i][2] = random.choice(obstacle_images)
+            obstacles[i][3] = pygame.Rect(obstacles[i][0], obstacles[i][1] - obstacles[i][2].get_height(), obstacles[i][2].get_width(),
+                                          obstacles[i][2].get_height())
+
             score += 1
+            if score > highscore:
+                highscore = score
 
     # Collision detection
-    # dot_rect = pygame.Rect(dot_x, dot_y+50, 30, 30)
+    dot_rect = pygame.Rect(dot_x, dot_y - dot_image.get_height(), dot_image.get_width(), dot_image.get_height())
+
+    for obs in obstacles:
+        if dot_rect.colliderect(obs[3]):
+            score = 0  # Reset score on collision
+            #for i in range(num_obstacles):
+            #    obstacles[i][0] = WIDTH + i * 200
+            #    obstacles[i][2] = random.choice(obstacle_images)
 
     # for obs in obstacles:
-    #    obstacle_rect = pygame.Rect(obs[0], obs[1], obs[2].get_width(), obs[2].get_height())
-    #    if dot_rect.colliderect(obstacle_rect):
-    #        score = 0  # Reset score on collision
+    #    if dot_x <= obs[0] <= dot_x + 40 and dot_y-30 <= obs[1] <= dot_y+30:
+    #        score = 0
     #        for i in range(num_obstacles):
     #            obstacles[i][0] = WIDTH + i * 200
     #            obstacles[i][2] = random.choice(obstacle_images)
-
-    for obs in obstacles:
-        if dot_x - 40 <= obs[0] <= dot_x + 40 and dot_y+50-30 <= obs[1] <= dot_y+50+30:
-            score = 0
-            for i in range(num_obstacles):
-                obstacles[i][0] = WIDTH + i * 200
-                obstacles[i][2] = random.choice(obstacle_images)
 
     # Draw the scrolling background layers
     screen.blit(bg_far, (bg_far_x1, 0))
@@ -157,15 +165,24 @@ while running:
     screen.blit(bg_near, (bg_near_x2, 0))
 
     # Draw the dot
-    screen.blit(dot_image, (dot_x, dot_y))
+    screen.blit(dot_image, (dot_x, dot_y - dot_image.get_height()))
+
+    # Draw bugfix
+    pygame.draw.rect(screen, RED, dot_rect, width=5)
+    pygame.draw.rect(screen, RED, obstacles[0][3], width=5)
+    pygame.draw.rect(screen, RED, obstacles[1][3], width=5)
+    pygame.draw.rect(screen, RED, obstacles[2][3], width=5)
+    pygame.draw.rect(screen, RED, obstacles[3][3], width=5)
 
     # Draw obstacles
     for obs in obstacles:
-        screen.blit(obs[2], (obs[0], obs[1]))
+        screen.blit(obs[2], (obs[0], obs[1] - obs[2].get_height()))
 
     # Draw the score
     score_text = score_font.render(f"Score: {score}", True, WHITE)
     screen.blit(score_text, (10, 10))
+    high_score_text = score_font.render(f"Highscore: {highscore}", True, WHITE)
+    screen.blit(high_score_text, (10, 50))
 
     # Update the display and set the frame rate
     pygame.display.flip()
